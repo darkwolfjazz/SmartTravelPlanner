@@ -1,5 +1,9 @@
 package com.smartTravelPlanner.Controller;
 
+import com.smartTravelPlanner.Model.BookingRequest;
+import com.smartTravelPlanner.Model.FlightQuote;
+import com.smartTravelPlanner.Model.FlightQuotes;
+import com.smartTravelPlanner.Service.BookingService;
 import com.smartTravelPlanner.Service.FlightService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,10 @@ public class FlightController {
 
 @Autowired
     private FlightService flightService;
+
+
+@Autowired
+    private BookingService bookingService;
 
 private Logger logger=org.slf4j.LoggerFactory.getLogger(FlightController.class);
 
@@ -34,4 +42,28 @@ private Logger logger=org.slf4j.LoggerFactory.getLogger(FlightController.class);
                 "{}, toEntityId: {}, departureDate: {}", fromEntityId, toEntityId, departureDate);
         return flightService.getCheapestFlight(fromEntityId, toEntityId, departureDate);
     }
+
+    @PostMapping("/book")
+    public String bookFlight(@RequestBody BookingRequest bookingRequest, @RequestParam String flightID) {
+
+        List<FlightQuotes> flights = flightService.parseFlightResponse(flightService.getFlights(
+                bookingRequest.getFromEntityId(), bookingRequest.getToEntityId(), bookingRequest.getType()
+        ));
+
+        FlightQuote selectedFlight = flights.stream()
+                .filter(flight -> flight.getId().equals(flightID))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Flight not found"));
+
+        return bookingService.bookFlight(bookingRequest, selectedFlight);
+    }
+
+
+
+
+
+
+
+
+
 }

@@ -1,5 +1,5 @@
 package com.smartTravelPlanner.Service;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Service
 public class FlightService {
@@ -24,6 +26,9 @@ public class FlightService {
     @Value("${flightscraper.api.host}")
     private String apiHost;
 
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Logger logger = org.slf4j.LoggerFactory.getLogger(FlightService.class);
 

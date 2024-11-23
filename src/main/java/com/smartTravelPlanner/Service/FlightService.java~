@@ -1,5 +1,8 @@
 package com.smartTravelPlanner.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartTravelPlanner.Model.FlightQuotes;
+import com.smartTravelPlanner.Model.FlightResponse;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +12,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Service
 public class FlightService {
@@ -24,6 +29,9 @@ public class FlightService {
     @Value("${flightscraper.api.host}")
     private String apiHost;
 
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Logger logger = org.slf4j.LoggerFactory.getLogger(FlightService.class);
 
@@ -47,7 +55,6 @@ public class FlightService {
             return "Error: Unable to fetch flights. " + ex.getMessage();
         }
     }
-
     public String getCheapestFlight(String fromEntityId, String toEntityId, String departureDate) {
         String url = String.format(
                 "https://%s/flights/cheapest-one-way?fromEntityId=%s&toEntityId=%s&departDate=%s",
@@ -67,6 +74,17 @@ public class FlightService {
         } catch (Exception ex) {
             logger.error("Error while calling Flight API: {}", ex.getMessage());
             return "Error: Unable to fetch flights. " + ex.getMessage();
+        }
+    }
+
+
+    public List<FlightQuotes>parseFlightResponse(String jsonResponse) {
+        try {
+            FlightResponse flightResponse = objectMapper.readValue(jsonResponse, FlightResponse.class);
+            return flightResponse.getData().getFlightQuotes().getResults();
+        } catch (Exception ex) {
+            logger.error("Error while parsing flight response: {}", ex.getMessage());
+            throw new RuntimeException("Error while parsing flight response: " + ex.getMessage(), ex);
         }
     }
 }
