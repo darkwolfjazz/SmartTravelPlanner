@@ -19,6 +19,9 @@ public class BookingServiceTest {
     @InjectMocks
     BookingService bookingService;
 
+    @Mock
+    BookingRepository bookingRepository;
+
     @Test
     void makeBookingTest(){
         BookingEntity fakeBooking=new BookingEntity();
